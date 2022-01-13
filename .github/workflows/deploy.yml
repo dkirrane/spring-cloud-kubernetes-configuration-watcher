@@ -1,0 +1,91 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        type: choice
+        description: AKS cluster to deploy to
+        default: 'dev'
+        required: true
+        options:
+          [
+            alpha-2,
+            ci,
+            dev-1, dev-2, dev-3, dev-4, dev-5, dev-6, dev-7, dev-8, dev-9, dev-10, dev-11, dev,
+            perf-1, perf-2, perf-3, perf-4, perf-5, perf-6, perf-7, perf-8,
+            qa,
+            sbx-2, sbx-3, sbx-4, sbx-6, sbx-10, sbx-17, sbx-18, sbx-21, sbx-22, sbx-26, sbx-27,
+            stage,
+            uat,
+            prod-ase, prod-eu, prod-na, prod-release, prod-sa, prod-uk
+          ]
+      environment:
+        description: Azure Subscription containing the above AKS cluster
+        type: environment
+        required: true
+
+env:
+  SKAFFOLD_INTERACTIVE: false
+  SKAFFOLD_UPDATE_CHECK: false
+  SKAFFOLD_VERBOSITY: warning   # Log level: one of [panic fatal error warning info debug trace]
+
+jobs:
+
+  Deploy:
+    name: "Deploy spring-cloud-kubernetes-configuration-watcher"
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v2.0
+        # with:
+        #   version: '<version>' # default is latest stable
+
+      - name: Install Skaffold
+        run: |
+          echo "Install Skaffold:"
+          mkdir -p $HOME/.local/bin/
+          curl --fail --retry 3 --location https://github.com/GoogleContainerTools/skaffold/releases/download/v1.35.1/skaffold-linux-amd64 --output $HOME/.local/bin/skaffold
+          chmod +x $HOME/.local/bin/skaffold
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+          skaffold version
+          skaffold config set --global collect-metrics false
+          skaffold config set default-repo ${{ env.REGISTRY }}
+
+      - name: Azure Login
+        uses: Azure/login@v1.1
+        with:
+          creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
+
+      - name: ACR Login
+        run: az acr login --name ${{ env.REGISTRY }}
+
+      - name: Azure Kubernetes set context
+        uses: Azure/aks-set-context@v1
+        with:
+          creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
+          resource-group: ixcc-${{ github.event.inputs.env }}-rg
+          cluster-name: ixcc-${{ github.event.inputs.env }}-aks
+
+      - name: Deploy
+        run: |
+          export cluster=$( kubectl config current-context )
+          echo "Deploying to cluster ${cluster}"#
+
+          skaffold run
+
+          POD_NAME=$(kubectl get pods --namespace default -l "app=spring-cloud-kubernetes-configuration-watcher" -o jsonpath="{.items[0].metadata.name}")
+          echo "POD_NAME=$POD_NAME" >> $GITHUB_ENV
+        shell: bash
+
+      - name: kubectl logs
+        run: |
+          echo ""
+          echo "To check logs run:"
+          echo ""
+          echo "kubectl logs -f $POD_NAME"
