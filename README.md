@@ -24,4 +24,4 @@ See [create-gh-env.sh](./create-gh-env.sh) for an example script on how to setup
 
 ## GitHub Actions Workflow
 
-![Deploy Workflow](https://github.com/dkirrane/spring-cloud-kubernetes-configuration-watcher/actions/workflows/deploy.yml/badge.svg?branch=main)
+[![Deploy Workflow](https://github.com/dkirrane/spring-cloud-kubernetes-configuration-watcher/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/dkirrane/spring-cloud-kubernetes-configuration-watcher/actions/workflows/deploy.yml)
