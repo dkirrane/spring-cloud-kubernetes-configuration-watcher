@@ -25,8 +25,34 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
+      - name: Azure Login
+        uses: Azure/login@v2
+        with:
+          creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
+
+      - name: ACR Login
+        run: az acr login --name ${{ secrets.ACR_REGISTRY_NAME }}
+
       - name: Install kubectl
         uses: azure/setup-kubectl@v3.2
+        # with:
+        #   version: '<version>' # default is latest stable
+
+      - name: Set up kubelogin
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: "v0.0.32"
+
+      - name: Azure Kubernetes set context
+        uses: Azure/aks-set-context@v4
+        with:
+          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
+          admin: "false"
+          use-kubelogin: "true"
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
         # with:
         #   version: '<version>' # default is latest stable
 
@@ -40,21 +66,6 @@ jobs:
           skaffold version
           skaffold config set --global collect-metrics false
           skaffold config set default-repo ${{ secrets.ACR_REGISTRY_NAME }}
-
-      - name: Azure Login
-        uses: Azure/login@v2
-        with:
-          creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
-
-      - name: ACR Login
-        run: az acr login --name ${{ secrets.ACR_REGISTRY_NAME }}
-
-      - name: Azure Kubernetes set context
-        uses: Azure/aks-set-context@v4
-        with:
-          creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
-          resource-group: ${{ secrets.ACR_REGISTRY_NAME }}
-          cluster-name: ${{ secrets.ACR_REGISTRY_NAME }}
 
       - name: Deploy
         run: |
