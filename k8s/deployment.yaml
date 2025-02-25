@@ -60,9 +60,8 @@ items:
           serviceAccount: spring-cloud-kubernetes-configuration-watcher
           containers:
             - name: spring-cloud-kubernetes-configuration-watcher
-              # image: springcloud/spring-cloud-kubernetes-configuration-watcher:2.1.0
-              # image: ixccmetam.azurecr.io/spring-cloud-kubernetes-configuration-watcher:3.0.3
-              image: ixccmetam.azurecr.io/spring-cloud-kubernetes-configuration-watcher:3.2.0
+              # image: springcloud/spring-cloud-kubernetes-configuration-watcher:3.2.0
+              image: spring-cloud-kubernetes-configuration-watcher:3.2.0 # Skaffold will automatically rewrite this image reference to include your specified default-repo
               imagePullPolicy: IfNotPresent
               readinessProbe:
                 httpGet:
