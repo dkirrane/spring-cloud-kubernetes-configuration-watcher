@@ -46,7 +46,7 @@ jobs:
       - name: Azure Kubernetes set context
         uses: Azure/aks-set-context@v4
         with:
-          resource-group: ${{ secrets.AKS_RESOURCE_GROUP }}
+          resource-group: ${{ secrets.AKS_CLUSTER_RG }}
           cluster-name: ${{ secrets.AKS_CLUSTER_NAME }}
           admin: "false"
           use-kubelogin: "true"
