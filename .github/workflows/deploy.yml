@@ -78,7 +78,7 @@ jobs:
           echo "POD_NAME=$POD_NAME" >> $GITHUB_ENV
         shell: bash
 
-      - name; Write Summary
+      - name: Write Summary
         run: |
           echo "#### Deployment completed successfully."
           echo "_Check the logs of the pod for more details:_" >> $GITHUB_STEP_SUMMARY
