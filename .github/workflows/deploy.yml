@@ -3,14 +3,8 @@ name: Deploy
 on:
   workflow_dispatch:
     inputs:
-      env:
-        type: choice
-        description: AKS cluster name to deploy to
-        default: "dev"
-        required: true
-        options: [dev, stage, prod]
       environment:
-        description: Azure Subscription containing the above AKS cluster
+        description: The GitHub Environment with the required Azure credentials and AKS cluster details
         type: environment
         required: true
 
