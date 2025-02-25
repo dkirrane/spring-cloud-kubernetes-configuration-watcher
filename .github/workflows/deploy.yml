@@ -18,6 +18,9 @@ jobs:
     name: "Deploy spring-cloud-kubernetes-configuration-watcher"
     runs-on: ubuntu-latest
 
+    environment:
+      name: ${{ inputs.environment }}
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
