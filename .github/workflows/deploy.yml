@@ -5,21 +5,10 @@ on:
     inputs:
       env:
         type: choice
-        description: AKS cluster to deploy to
-        default: 'dev'
+        description: AKS cluster name to deploy to
+        default: "dev"
         required: true
-        options:
-          [
-            alpha-2,
-            ci,
-            dev-1, dev-2, dev-3, dev-4, dev-5, dev-6, dev-7, dev-8, dev-9, dev-10, dev-11, dev,
-            perf-1, perf-2, perf-3, perf-4, perf-5, perf-6, perf-7, perf-8,
-            qa,
-            sbx-2, sbx-3, sbx-4, sbx-6, sbx-10, sbx-17, sbx-18, sbx-21, sbx-22, sbx-26, sbx-27,
-            stage,
-            uat,
-            prod-ase, prod-eu, prod-na, prod-release, prod-sa, prod-uk
-          ]
+        options: [dev, stage, prod]
       environment:
         description: Azure Subscription containing the above AKS cluster
         type: environment
@@ -28,16 +17,14 @@ on:
 env:
   SKAFFOLD_INTERACTIVE: false
   SKAFFOLD_UPDATE_CHECK: false
-  SKAFFOLD_VERBOSITY: warning   # Log level: one of [panic fatal error warning info debug trace]
+  SKAFFOLD_VERBOSITY: warning # Log level: one of [panic fatal error warning info debug trace]
 
 jobs:
-
   Deploy:
     name: "Deploy spring-cloud-kubernetes-configuration-watcher"
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout sources
         uses: actions/checkout@v2
 
@@ -55,7 +42,7 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
           skaffold version
           skaffold config set --global collect-metrics false
-          skaffold config set default-repo ${{ env.REGISTRY }}
+          skaffold config set default-repo ${{ secrets.ACR_REGISTRY_NAME }}
 
       - name: Azure Login
         uses: Azure/login@v1.1
@@ -63,14 +50,14 @@ jobs:
           creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
 
       - name: ACR Login
-        run: az acr login --name ${{ env.REGISTRY }}
+        run: az acr login --name ${{ secrets.ACR_REGISTRY_NAME }}
 
       - name: Azure Kubernetes set context
         uses: Azure/aks-set-context@v1
         with:
           creds: '{"clientId":"${{ secrets.ARM_CLIENT_ID }}","clientSecret":"${{ secrets.ARM_CLIENT_SECRET }}","subscriptionId":"${{ secrets.ARM_SUBSCRIPTION_ID }}","tenantId":"${{ secrets.ARM_TENANT_ID }}"}'
-          resource-group: ixcc-${{ github.event.inputs.env }}-rg
-          cluster-name: ixcc-${{ github.event.inputs.env }}-aks
+          resource-group: ${{ secrets.ACR_REGISTRY_NAME }}
+          cluster-name: ${{ secrets.ACR_REGISTRY_NAME }}
 
       - name: Deploy
         run: |

@@ -1,6 +1,6 @@
 # Overview
 
-This project provides a GitHub Action workflow for deploying to Azure AKS.
+This project provides a GitHub Action workflow for deploying **Spring Cloud Kubernetes Configuration Watcher** to **Azure AKS**.
 
 ## References
 - https://docs.spring.io/spring-cloud-kubernetes/docs/current/reference/html/#spring-cloud-kubernetes-configuration-watcher
@@ -16,17 +16,11 @@ _Create a GitHub Environment with the following Secrets and env Variables:_
 | **`ARM_CLIENT_SECRET`**   | Secret (required)   | Client Secret of the Microsoft EntraID Service Principal with rbac to AKS |
 | **`ARM_SUBSCRIPTION_ID`** | Secret (required)   | The Azure Subscription ID                                                 |
 | **`ARM_SUBSCRIPTION_ID`** | Secret (required)   | The Microsoft EntraID Tenant ID                                           |
-| **`REGISTRY`**            | Variable (required) | The name of the Azure Container Registry (ACR)                            |
+| **`ACR_REGISTRY_NAME`**   | Variable (required) | The name of the Azure Container Registry (ACR)                            |
+| **`AKS_CLUSTER_NAME`**    | Variable (required) | The name of the Azure Kubernetes Cluster (AKS)                            |
+| **`AKS_CLUSTER_RG`**      | Variable (required) | The name of Resource Group containing the AKS Cluster                     |
 
-```bash
-# Example setting up required GitHub Environment with GH CLI
-env="dev"
-gh secret set --repo dkirrane/spring-cloud-kubernetes-configuration-watcher --env ${env} ARM_CLIENT_ID --body ${GCP_CREDENTIALS}
-gh secret set --repo dkirrane/spring-cloud-kubernetes-configuration-watcher --env ${env} ARM_CLIENT_SECRET --body ${env}
-gh secret set --repo dkirrane/spring-cloud-kubernetes-configuration-watcher --env ${env} ARM_SUBSCRIPTION_ID --body ${region}
-gh secret set --repo dkirrane/spring-cloud-kubernetes-configuration-watcher --env ${env} ARM_SUBSCRIPTION_ID --body ${env}
-gh secret set --repo dkirrane/spring-cloud-kubernetes-configuration-watcher --env ${env} REGISTRY --body ${env}
-```
+See [create-gh-env.sh](./create-gh-env.sh) for an example script on how to setup GitHub environment automatically.
 
 ## GitHub Actions Workflow
 
