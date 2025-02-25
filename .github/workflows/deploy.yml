@@ -34,7 +34,7 @@ jobs:
         run: az acr login --name ${{ secrets.ACR_REGISTRY_NAME }}
 
       - name: Install kubectl
-        uses: azure/setup-kubectl@v3.2
+        uses: azure/setup-kubectl@v4
         # with:
         #   version: '<version>' # default is latest stable
 
